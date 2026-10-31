@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#111219">
+  <meta name="description" content="La enciclopedia del Coliseo Multiversal de AM: Multiverso. Consultá personajes, movimientos, pasivas, objetos, elementos, ambientes y estrategias de la versión 4.3.0 Build 34.">
+  <meta property="og:title" content="Coliseo Multiversal · Wiki de AM: Multiverso"><meta property="og:description" content="107 personajes. 336 movimientos. Tu próximo equipo empieza acá.">
+  <title>Coliseo Multiversal · Wiki</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="styles.css">
+  <script src="data/catalogo.js" defer></script><script src="data/devlog.js" defer></script><script src="core.js" defer></script><script src="app.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#contenido">Ir al contenido</a>
+<div class="drawer-scrim" id="drawer-scrim"></div>
+<aside class="sidebar" id="sidebar" aria-label="Navegación principal">
+  <a class="brand" href="#inicio" aria-label="Coliseo Multiversal, inicio"><span class="brand-seal">AM</span><span>COLISEO<span class="brand-small">MULTIVERSAL <b>WIKI</b></span></span></a>
+  <button class="search-trigger" data-action="open-search">⌕ <span>Buscar en la wiki</span><kbd>Ctrl K</kbd></button>
+  <nav id="navigation"></nav>
+  <div class="sidebar-bottom"><span class="online-dot"></span><span>Archivo actualizado<strong>4.3.0 · Build 34</strong></span><a href="#novedades" title="Ver novedades" aria-label="Ver novedades">↗</a></div>
+</aside>
+<div class="workspace">
+<header class="topbar"><button class="icon-button mobile-menu" data-action="toggle-menu" aria-label="Abrir menú" aria-expanded="false">☰</button><div id="breadcrumb">AM: Multiverso <span>/</span> Enciclopedia de combate</div><div class="topbar-right"><span class="version-tag">4.3.0 <span>BUILD 34</span></span><button class="icon-button" data-action="open-search" aria-label="Buscar en la wiki">⌕</button></div></header>
+<main id="contenido" tabindex="-1"></main>
+<footer class="site-footer"><span>AM: Multiverso <span class="separator">/</span> Coliseo Multiversal</span><div><a href="data/catalogo.json" download>Descargar catálogo</a><a href="https://github.com/agustinmalandra/am-coliseo-wiki" target="_blank" rel="noopener noreferrer">GitHub ↗</a></div></footer>
+</div>
+<dialog id="search-dialog" class="search-dialog" aria-labelledby="search-title"><div class="dialog-top"><h2 id="search-title">Buscar en el Coliseo</h2><button class="icon-button" data-action="close-search" aria-label="Cerrar búsqueda">×</button></div><label class="sr-only" for="global-search">Personaje, movimiento, objeto o pasiva</label><input id="global-search" type="search" placeholder="Personaje, movimiento, objeto o pasiva…" autocomplete="off"><div id="search-results" aria-live="polite"></div><div class="dialog-hint">Probá «Inciner», «curación» o «Campo Anómalo» <kbd>Esc</kbd> para cerrar</div></dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+<noscript><p class="noscript">Activá JavaScript en tu navegador para explorar las fichas y usar los filtros de la wiki.</p></noscript>
+</body></html>
