@@ -35,3 +35,16 @@
 .object-mini .object-fallback{font-size:20px}
 @media(max-width:520px){.object-detail-intro{grid-template-columns:1fr;gap:20px}.object-detail-art{width:100%;height:190px}.object-art{height:170px}}
 @media(prefers-reduced-motion:reduce){.object-art img{transition:none}}
+
+/* Rework y Meta · Build 34 */
+.move-badge{display:inline-flex;vertical-align:middle;align-items:center;margin-left:6px;padding:2px 6px;border-radius:5px;font-size:9px;font-weight:800;letter-spacing:.04em;white-space:nowrap}
+.move-badge.is-new{background:#233f36;color:#9ce7c3;border:1px solid #4b8467}
+.move-badge.is-rework{background:#392e4e;color:#cbb6fc;border:1px solid #6a5192}
+.history-card{margin:22px 0;padding:21px;border:1px solid #715399;border-radius:14px;background:#251d36}
+.history-card h2{font-size:19px;margin-bottom:10px}
+.history-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.move-history-numbers{display:flex;gap:9px;flex-wrap:wrap;margin:10px 0}
+.move-history-numbers span{font-size:11px;color:var(--muted)}.move-history-numbers b{color:var(--text)}
+.meta-person{display:inline-flex;align-items:center;gap:8px;font-weight:700}.sample-warning{display:block;color:var(--gold)}
+#meta-results{margin:24px 0}#meta-results .mini-avatar{height:32px;width:32px}#meta-results table th{white-space:nowrap}
+@media(max-width:760px){.history-grid{grid-template-columns:1fr}.history-card{padding:14px}}

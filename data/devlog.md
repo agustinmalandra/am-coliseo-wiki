@@ -1,3 +1,11 @@
+## Coliseo · Rework de movimientos (1 de noviembre de 2026)
+
+- Catálogo ampliado a **376 movimientos**: **40 nuevos** y **27 reworkeados**; 107 personajes mantienen sus estadísticas y pasivas.
+- Cada personaje ahora puede elegir entre **30 movimientos** y equipar **4**.
+- Nuevos efectos: relevos elegidos, secuencias, bonificaciones por KO, daño según VIDA faltante, golpes certeros, reducción de atributos, limpiezas y estados especiales.
+- Las fichas muestran un **historial Antes / Ahora** para los 27 reworks.
+- El menú **Meta** explica el winrate real y el ajuste de Wilson; solo presenta estadísticas si existe una fuente de resultados válida.
+
 **AM: MULTIVERSO · DEVLOG**
 
 **Versión 4.3.0 · Build 34**
