@@ -93,3 +93,10 @@
 @media(prefers-reduced-motion:reduce){.tcg-page .tcg-tile,.tcg-page .tcg-tile img,.tcg-page .tcg-cta,.tcg-page .tcg-hero-card{transition:none!important}}
 
 .tcg-page [hidden]{display:none!important}
+
+/* Visualización de cartas dentro de la wiki, sin enlace directo al JPG. */
+.tcg-image-zoom{border:0;background:none;width:100%;cursor:zoom-in;font:inherit;}
+.tcg-art-lightbox{max-width:min(95vw,680px);max-height:95vh;padding:24px;border:1px solid #ab72e8;border-radius:16px;background:#11111d;color:white;box-shadow:0 20px 80px #000b;}
+.tcg-art-lightbox::backdrop{background:#05050bd9;}
+.tcg-art-lightbox img{display:block;max-width:100%;max-height:80vh;object-fit:contain;margin:auto;user-select:none;-webkit-user-drag:none;}
+.tcg-lightbox-close{display:block;margin:0 0 10px auto;border:1px solid #7253b0;color:white;border-radius:8px;padding:8px 12px;background:#242034;cursor:pointer;}

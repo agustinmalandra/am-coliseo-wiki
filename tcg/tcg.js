@@ -4,6 +4,8 @@
   const catalog = window.AM_TCG_DATA;
   if (!catalog || !Array.isArray(catalog.cards)) return;
   const cards = catalog.cards;
+  const refreshedArt=new Set(["la_soga_gold","mvp_gold","plato_principal_gold","pop_bakudan_gold","saa_hajimeyou_gold","say_what_you_want_gold","te_voy_a_amar_fire","tension_gold","thirsty_fire","un_round_mas_gold","whatajell_gold2","el_trono_fire","fragmentos_gold","gula_gold","hinochi_wo_harau_koto_gold"]);
+  for(const card of cards)if(refreshedArt.has(card.id))card.image+="?v=coliseo-six-20261104";
   const byId = Object.fromEntries(cards.map(c => [c.id, c]));
   const types = {personaje:'Personaje',accion:'Acción',objeto:'Objeto',campo:'Campo',demo:'Demo'};
   const rarities = {hit:'Hit',single:'Single',deepCut:'Deep Cut',deluxe:'Deluxe',ninguna:'Sin rareza',rara:'Rara',comun:'Común',raro:'Raro',especial:'Especial',reliquia:'Reliquia',fire:'Fire'};
@@ -80,7 +82,7 @@
     ].filter(Boolean).join('');
     return `<div class="tcg-page tcg-detail-page">
       <a href="#tcg" class="tcg-back">← Volver al catálogo TCG</a>
-      <div class="tcg-detail-layout"><div class="tcg-detail-image-col"><div class="tcg-detail-art ${c.variant?'is-'+tone[c.variant]:''}"><img src="${esc(c.image)}" alt="Carta original ${esc(c.name)}" fetchpriority="high" decoding="async"></div><a href="${esc(c.image)}" class="tcg-image-zoom" target="_blank" rel="noopener noreferrer">Ampliar ilustración original ↗</a></div>
+      <div class="tcg-detail-layout"><div class="tcg-detail-image-col"><div class="tcg-detail-art ${c.variant?'is-'+tone[c.variant]:''}"><img src="${esc(c.image)}" alt="Carta original ${esc(c.name)}" fetchpriority="high" decoding="async"></div><button type="button" class="tcg-image-zoom" data-tcg-zoom="true" aria-label="Ampliar ilustración de ${esc(c.name)}">Ampliar ilustración</button></div>
         <div class="tcg-detail-copy"><span class="tcg-kicker">FICHA DE CARTA · AM: MULTIVERSO</span><h1>${esc(c.name)}</h1><div class="tcg-detail-tags"><span class="tcg-type-label">${esc(typeText(c))}</span><span class="tcg-rarity-label">${esc(rarityText(c))}</span>${c.variant?`<span class="tcg-visual-label">${esc(c.variant)}</span>`:''}</div>
           <div class="tcg-card-specs"><div><span>RITMO</span><strong>♫ ${c.cost}</strong></div><div><span>ÁLBUM / COLECCIÓN</span><strong>${c.album?esc(c.album):'No especificado'}</strong></div></div>
           ${stats}
@@ -130,5 +132,21 @@
     document.getElementById('tcg-load-more').addEventListener('click',()=>{limit+=24;updateList(false)});
     updateList(true);
   }
+   // Ampliación interna: no enlaza al archivo de imagen directamente.
+   document.addEventListener('click',e=>{
+     const trigger=e.target.closest('[data-tcg-zoom]');
+     if(!trigger)return;
+     const panel=trigger.closest('.tcg-detail-image-col');
+     const source=panel?.querySelector('.tcg-detail-art img');
+     if(!source)return;
+     const overlay=document.createElement('dialog');
+     overlay.className='tcg-art-lightbox';
+     const close=document.createElement('button');close.type='button';close.className='tcg-lightbox-close';close.textContent='Cerrar ×';close.addEventListener('click',()=>overlay.close());
+     const image=document.createElement('img');image.src=source.currentSrc||source.src;image.alt=source.alt;image.draggable=false;
+     overlay.append(close,image);
+     overlay.addEventListener('close',()=>overlay.remove(),{once:true});
+     overlay.addEventListener('click',event=>{if(event.target===overlay)overlay.close();});
+     document.body.append(overlay);overlay.showModal();
+   });
   window.AMTCG={cards,renderList,renderCard,initList,nameFor,search:q=>filtered({q}).slice(0,10)};
 })();
