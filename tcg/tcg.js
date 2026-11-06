@@ -8,28 +8,33 @@
   for(const card of cards)if(refreshedArt.has(card.id))card.image+="?v=coliseo-six-20261104";
   const byId = Object.fromEntries(cards.map(c => [c.id, c]));
   const types = {personaje:'Personaje',accion:'Acción',objeto:'Objeto',campo:'Campo',demo:'Demo'};
-  const rarities = {hit:'Hit',single:'Single',deepCut:'Deep Cut',deluxe:'Deluxe',ninguna:'Sin rareza',rara:'Rara',comun:'Común',raro:'Raro',especial:'Especial',reliquia:'Reliquia',fire:'Fire'};
-  const tone = {Gold:'gold',Fullart:'fullart',Fire:'fire'};
+  const rarities = {hit:'Hit',single:'Single',deepCut:'Deep Cut',deluxe:'Deluxe',ninguna:'Sin rareza',rara:'Rara',comun:'Común',raro:'Raro',especial:'Especial',reliquia:'Reliquia',fire:'Fire',gold:'Gold',navidad:'Navidad'};
+  const tone = {Gold:'gold',Fullart:'fullart',Fire:'fire',Navidad:'navidad'};
   const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const normalize = v => String(v ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+  const albumLabel = v => String(v ?? '').normalize('NFKC').replace(/[‘’ʼ`´]/g, "'").replace(/\s+/g,' ').trim();
+  const normalize = v => albumLabel(v).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  const rarityFilter = v => /^(gold|navidad)$/i.test(v||'') ? v.toLowerCase() : v;
+  const rarityMatches = (c,value) => rarityFilter(value)==='gold'
+    ? normalize(c.variant)==='gold' || c.rarity==='gold'
+    : rarityFilter(value)==='navidad' ? c.event?.id==='navidad_2026' : value===c.rarity;
   const nameFor = id => byId[id]?.name || '';
   const typesCount = t => cards.filter(c=>c.type===t).length;
   const field = (id,label,html) => `<label class="tcg-filter"><span>${label}</span>${html}</label>`;
   const opt = (items,current,blank) => `<option value="">${blank}</option>`+items.map(v=>`<option value="${esc(v)}"${v===current?' selected':''}>${esc(v)}</option>`).join('');
-  const albums = [...new Set(cards.map(c=>c.album).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
-  const rarityKeys = [...new Set(cards.map(c=>c.rarity))].sort((a,b)=>(rarities[a]||a).localeCompare(rarities[b]||b,'es'));
+  const albums = [...new Set(cards.map(c=>albumLabel(c.album)).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+  const rarityKeys = [...new Set([...cards.map(c=>c.rarity),...cards.some(c=>normalize(c.variant)==='gold')?['gold']:[],...cards.some(c=>c.event?.id==='navidad_2026')?['navidad']:[]])].sort((a,b)=>(rarities[a]||a).localeCompare(rarities[b]||b,'es'));
   const qParams = () => new URLSearchParams((location.hash.split('?')[1]||''));
   let limit = 24;
   const badge = c => c.variant ? `<span class="tcg-card-variant tcg-variant-${tone[c.variant]||''}">${esc(c.variant)}</span>` : '';
   const typeText = c => types[c.type] || c.type;
-  const rarityText = c => rarities[c.rarity] || c.rarity;
-  const metaLine = c => `${typeText(c)} · ${rarityText(c.rarity) || rarityText(c)}${c.album?' · '+c.album:''}`;
+  const rarityText = c => {const key=typeof c==='string'?c:c.rarity;return rarities[key]||key;};
+  const metaLine = c => `${typeText(c)} · ${rarityText(c.rarity) || rarityText(c)}${c.album?' · '+albumLabel(c.album):''}`;
   const statText = c => c.type==='personaje' || c.type==='demo'
     ? `<div class="tcg-mini-stats"><span>⚔ ${c.atk ?? '—'}</span><span>◆ ${c.def ?? '—'}</span><span>♥ ${c.life ?? '—'}</span></div>`
     : `<span class="tcg-effect-hint">${esc((c.effectText||c.sketchText||'').slice(0,100))}</span>`;
   function tile(c) {
     return `<a class="tcg-tile" href="#carta/${encodeURIComponent(c.id)}" aria-label="Ver carta ${esc(c.name)}">
-      <div class="tcg-tile-art ${c.variant?'is-'+(tone[c.variant]||'special'):''}"><img src="${esc(c.image)}" loading="lazy" decoding="async" alt="Ilustración original de la carta ${esc(c.name)}">${badge(c)}<span class="tcg-cost-tag">♫ ${c.cost}</span></div>
+      <div class="tcg-tile-art ${c.variant?'is-'+(tone[c.variant]||'special'):''} ${c.imageIsReference?'is-reference':''}"><img src="${esc(c.image)}" loading="lazy" decoding="async" alt="${c.imageIsReference?'Ilustración de referencia de':'Ilustración original de la carta'} ${esc(c.name)}">${c.imageIsReference?'<span class="tcg-reference-label">Ilustración de referencia</span>':''}${badge(c)}<span class="tcg-cost-tag">♫ ${c.cost}</span></div>
       <div class="tcg-tile-body"><div class="tcg-tile-name" title="${esc(c.name)}">${esc(c.name)}</div><div class="tcg-tile-meta">${esc(typeText(c))} · ${esc(rarityText(c))}</div>${statText(c)}</div>
     </a>`;
   }
@@ -42,16 +47,17 @@
     </header>`;
   }
   function renderList() {
-    const p=qParams(),type=p.get('tipo')||'',album=p.get('album')||'',rarity=p.get('rareza')||'',cost=p.get('ritmo')||'',order=p.get('orden')||'original';
+    const p=qParams(),type=p.get('tipo')||'',album=albumLabel(p.get('album')||''),rarity=rarityFilter(p.get('rareza')||''),cost=p.get('ritmo')||'',order=p.get('orden')||'original';
     return `<div class="tcg-page">
       ${hero()}
+      <section class="tcg-event-banner"><div><span class="tcg-kicker">EVENTO · NAVIDAD 2026</span><h2>Copos, nuevas versiones y una reliquia.</h2><p>Siete variantes navideñas y Lighty. El evento del Coliseo se habilita el 1 de diciembre de 2026 a las 00:00 de Argentina.</p></div><a class="tcg-cta tcg-cta-secondary" href="#tcg?rareza=navidad">Ver las 8 recompensas ↗</a></section>
       <div class="tcg-stat-strip" aria-label="Resumen del catálogo"><div><strong>${cards.length}</strong><span>cartas</span></div><div><strong>${typesCount('personaje')}</strong><span>personajes</span></div><div><strong>${typesCount('accion')}</strong><span>acciones</span></div><div><strong>${albums.length}</strong><span>álbumes</span></div></div>
-      <section class="tcg-browser" aria-label="Catálogo de cartas"><div class="tcg-section-heading"><div><span class="tcg-kicker">CATÁLOGO COMPLETO</span><h2>Todas las cartas</h2><p>Buscá por nombre, habilidad, álbum, tipo, rareza o coste en Ritmos.</p></div><span class="tcg-facts">Versión 4.3.0</span></div>
+      <section class="tcg-browser" aria-label="Catálogo de cartas"><div class="tcg-section-heading"><div><span class="tcg-kicker">CATÁLOGO COMPLETO</span><h2>Todas las cartas</h2><p>Buscá por nombre, habilidad, álbum, tipo, rareza o coste en Ritmos.</p></div><span class="tcg-facts">Versión ${esc(catalog.version||'4.9.0')} · Build ${esc(catalog.build||35)}</span></div>
        <div class="tcg-filters">
         ${field('tcg-query','Buscar',`<input id="tcg-query" type="search" placeholder="Nombre o efecto..." value="${esc(p.get('q')||'')}" autocomplete="off">`)}
         ${field('tcg-type','Tipo',`<select id="tcg-type">${opt(Object.keys(types).map(k=>k),type,'Todos los tipos').replace(/>(personaje|accion|objeto|campo|demo)<\/option>/g,(_,k)=>`>${types[k]}</option>`)}</select>`)}
         ${field('tcg-album','Álbum',`<select id="tcg-album">${opt(albums,album,'Todos los álbumes')}</select>`)}
-        ${field('tcg-rarity','Rareza',`<select id="tcg-rarity">${opt(rarityKeys,rarity,'Todas').replace(/>(hit|single|deepCut|deluxe|ninguna|rara|comun|raro|especial|reliquia|fire)<\/option>/g,(_,k)=>`>${rarities[k]}</option>`)}</select>`)}
+        ${field('tcg-rarity','Rareza',`<select id="tcg-rarity">${opt(rarityKeys,rarity,'Todas').replace(/>(hit|single|deepCut|deluxe|ninguna|rara|comun|raro|especial|reliquia|fire|gold|navidad)<\/option>/g,(_,k)=>`>${rarities[k]}</option>`)}</select>`)}
         ${field('tcg-cost','Ritmos',`<select id="tcg-cost">${opt(['0','1','2','3','4','5','6','7'],cost,'Cualquier coste')}</select>`)}
         ${field('tcg-sort','Orden',`<select id="tcg-sort"><option value="original"${order==='original'?' selected':''}>Orden del juego</option><option value="nombre"${order==='nombre'?' selected':''}>Nombre A–Z</option><option value="coste"${order==='coste'?' selected':''}>Ritmo: menor a mayor</option><option value="coste_desc"${order==='coste_desc'?' selected':''}>Ritmo: mayor a menor</option><option value="ataque"${order==='ataque'?' selected':''}>Mayor ATK</option></select>`)}
         <button type="button" class="tcg-reset" id="tcg-reset">Limpiar filtros</button>
@@ -65,11 +71,15 @@
   const ability = (caption,name,description) => description
      ? `<section class="tcg-ability"><span class="tcg-ability-label">${caption}</span>${name?`<h3>${esc(name)}</h3>`:''}<p>${esc(description)}</p></section>` : '';
   function variantGroup(c) {
-    function stripVariant(id) {return id.replace(/_(fullart|gold|fire)$/,'');}
+    function stripVariant(id) {return id.replace(/_(fullart|gold|fire|navidad)$/,'');}
     const base=stripVariant(c.id);
-    const same=cards.filter(x=>stripVariant(x.id)===base && x.type===c.type && x.album===c.album);
+    const same=cards.filter(x=>stripVariant(x.id)===base && x.type===c.type && normalize(x.album)===normalize(c.album));
     if(same.length<=1)return '';
     return `<section class="tcg-versions"><h2>Otras versiones</h2><p>Explorá las variantes visuales disponibles de esta carta.</p><div class="tcg-version-row">${same.map(x=>`<a class="tcg-version ${x.id===c.id?'selected':''}" href="#carta/${encodeURIComponent(x.id)}" ${x.id===c.id?'aria-current="page"':''}><img src="${esc(x.image)}" alt="Versión ${esc(x.variant||'normal')} de ${esc(x.name)}" loading="lazy" decoding="async"><span>${esc(x.variant||'Normal')}</span></a>`).join('')}</div></section>`;
+  }
+  function eventInfo(c) {
+    if(!c.event)return '';
+    return `<section class="tcg-event-info"><span class="tcg-kicker">RECOMPENSA · ${esc(c.event.name)}</span><h2>${c.event.snowflakes} copos acumulados</h2><p>Alcanzá este total jugando al Coliseo. El evento se habilita el 1 de diciembre de 2026, a las 00:00 de Argentina.</p>${c.baseCard?`<p>Variante visual de <a href="#carta/${encodeURIComponent(c.baseCard)}">${esc(nameFor(c.baseCard))}</a>: conserva sus estadísticas y habilidades.</p>`:''}${c.imageIsReference?'<p class="tcg-reference-note">Se muestra una ilustración de referencia del personaje; el arte original de la carta todavía no está disponible en la wiki.</p>':''}</section>`;
   }
   function renderCard(id) {
     const c=byId[id];if(!c)return `<div class="tcg-page"><a class="tcg-back" href="#tcg">← Catálogo TCG</a><div class="tcg-not-found"><h1>Carta no encontrada</h1><p>Volvé al catálogo para explorar las cartas disponibles.</p></div></div>`;
@@ -82,13 +92,14 @@
     ].filter(Boolean).join('');
     return `<div class="tcg-page tcg-detail-page">
       <a href="#tcg" class="tcg-back">← Volver al catálogo TCG</a>
-      <div class="tcg-detail-layout"><div class="tcg-detail-image-col"><div class="tcg-detail-art ${c.variant?'is-'+tone[c.variant]:''}"><img src="${esc(c.image)}" alt="Carta original ${esc(c.name)}" fetchpriority="high" decoding="async"></div><button type="button" class="tcg-image-zoom" data-tcg-zoom="true" aria-label="Ampliar ilustración de ${esc(c.name)}">Ampliar ilustración</button></div>
+      <div class="tcg-detail-layout"><div class="tcg-detail-image-col"><div class="tcg-detail-art ${c.variant?'is-'+tone[c.variant]:''} ${c.imageIsReference?'is-reference':''}"><img src="${esc(c.image)}" alt="${c.imageIsReference?'Ilustración de referencia de':'Carta original'} ${esc(c.name)}" fetchpriority="high" decoding="async">${c.imageIsReference?'<span class="tcg-reference-label">Ilustración de referencia</span>':''}</div><button type="button" class="tcg-image-zoom" data-tcg-zoom="true" aria-label="Ampliar ilustración de ${esc(c.name)}">Ampliar ilustración</button></div>
         <div class="tcg-detail-copy"><span class="tcg-kicker">FICHA DE CARTA · AM: MULTIVERSO</span><h1>${esc(c.name)}</h1><div class="tcg-detail-tags"><span class="tcg-type-label">${esc(typeText(c))}</span><span class="tcg-rarity-label">${esc(rarityText(c))}</span>${c.variant?`<span class="tcg-visual-label">${esc(c.variant)}</span>`:''}</div>
-          <div class="tcg-card-specs"><div><span>RITMO</span><strong>♫ ${c.cost}</strong></div><div><span>ÁLBUM / COLECCIÓN</span><strong>${c.album?esc(c.album):'No especificado'}</strong></div></div>
+          <div class="tcg-card-specs"><div><span>RITMO</span><strong>♫ ${c.cost}</strong></div><div><span>ÁLBUM / COLECCIÓN</span><strong>${c.album?esc(albumLabel(c.album)):'No especificado'}</strong></div></div>
           ${stats}
           ${abilities?`<div class="tcg-ability-list">${abilities}</div>`:`<div class="tcg-ability-list"><p class="tcg-note">Esta carta no tiene un texto de habilidad registrado en el archivo recibido.</p></div>`}
+          ${eventInfo(c)}
           ${variantGroup(c)}
-          <div class="tcg-detail-bottom"><p>Ficha informativa basada en la base de cartas del juego. Las ilustraciones son las originales.</p><a href="#descarga" class="tcg-cta">Jugar AM: Multiverso ↗</a></div>
+          <div class="tcg-detail-bottom"><p>Ficha informativa basada en la base de cartas del juego. ${c.imageIsReference?'La ilustración mostrada es de referencia.':'Las ilustraciones son las originales.'}</p><a href="#descarga" class="tcg-cta">Jugar AM: Multiverso ↗</a></div>
         </div></div></div>`;
   }
   function currentFilters() {
@@ -98,8 +109,8 @@
   function filtered(f) {
     const needle=normalize(f.q);
     const list=cards.filter(c=>
-      (!needle||normalize([c.name,c.album,c.passiveName,c.passiveText,c.chorusName,c.chorusText,c.effectText,c.sketchName,c.sketchText,c.id].join(' ')).includes(needle)) &&
-      (!f.tipo||f.tipo===c.type) && (!f.album||f.album===c.album) && (!f.rareza||f.rareza===c.rarity) && (!f.ritmo||Number(f.ritmo)===c.cost)
+      (!needle||normalize([c.name,c.album,c.passiveName,c.passiveText,c.chorusName,c.chorusText,c.effectText,c.sketchName,c.sketchText,c.variant,c.event?.name,c.id].join(' ')).includes(needle)) &&
+      (!f.tipo||f.tipo===c.type) && (!f.album||normalize(f.album)===normalize(c.album)) && (!f.rareza||rarityMatches(c,f.rareza)) && (!f.ritmo||Number(f.ritmo)===c.cost)
     );
     if(f.orden==='nombre')list.sort((a,b)=>a.name.localeCompare(b.name,'es'));
     if(f.orden==='coste')list.sort((a,b)=>a.cost-b.cost||a.name.localeCompare(b.name,'es'));
@@ -148,5 +159,5 @@
      overlay.addEventListener('click',event=>{if(event.target===overlay)overlay.close();});
      document.body.append(overlay);overlay.showModal();
    });
-  window.AMTCG={cards,renderList,renderCard,initList,nameFor,search:q=>filtered({q}).slice(0,10)};
+  window.AMTCG={cards,renderList,renderCard,initList,nameFor,filterCards:filtered,albums,search:q=>filtered({q}).slice(0,10)};
 })();

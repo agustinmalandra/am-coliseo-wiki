@@ -9,8 +9,8 @@ vm.createContext(context);
 for(const file of ['data/catalogo-b34-20261101-fix2.js','data/arena-b35.js','data/sinergias-b35.js','core.js','expansions-b35.js'])vm.runInContext(readFileSync(resolve(root,file),'utf8'),context,{filename:file});
 const {COLISEO_DATA:D,ARENA_DATA:A,SYNERGY_DATA:S,AMWikiExpansion:E}=context.window;
 test('all previous Coliseo catalog entries remain available',()=>{
- assert.equal(D.characters.length,113);assert.equal(D.moves.length,385);
- assert.equal(D.characters.reduce((n,c)=>n+c.passives.length,0),254);
+ assert.equal(D.characters.length,115);assert.equal(D.moves.length,389);
+ assert.equal(D.characters.reduce((n,c)=>n+c.passives.length,0),260);
  assert.equal(D.equipment.length,12);assert.equal(D.environments.length,7);
 });
 test('25 links keep the agreed 13/5/7 distribution and unique IDs',()=>{

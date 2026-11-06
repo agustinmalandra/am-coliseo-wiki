@@ -1,5 +1,5 @@
 {
-  "count": 250,
+  "count": 258,
   "cards": [
     {
       "id": "ra",
@@ -3839,6 +3839,189 @@
       "effectText": "Puede usarse cuando el rival declara un ataque contra uno de tus Personajes. Ese Personaje aliado obtiene +1 DEF exclusivamente contra ese ataque.",
       "image": "assets/cards/golady.jpg",
       "variant": ""
+    },
+    {
+      "id": "traje_arlequin_navidad",
+      "name": "Traje de Arlequín",
+      "type": "objeto",
+      "rarity": "raro",
+      "cost": 2,
+      "effectText": "Al comienzo de tu turno: +1 ATK este turno o +1 DEF hasta tu próximo turno. No puede repetir opción consecutivamente.",
+      "image": "assets/cards/traje_arlequin_navidad.jpg",
+      "album": "",
+      "variant": "Navidad",
+      "event": {
+        "id": "navidad_2026",
+        "name": "Navidad 2026",
+        "snowflakes": 3,
+        "opensAt": "2026-12-01T03:00:00Z"
+      },
+      "baseCard": "traje_arlequin"
+    },
+    {
+      "id": "liberacion_es_navidad",
+      "name": "Liberación Es",
+      "type": "personaje",
+      "rarity": "single",
+      "cost": 3,
+      "atk": 4,
+      "def": 2,
+      "life": 1,
+      "album": "6AM",
+      "passiveName": "Propulsión",
+      "passiveText": "Puede atacar el turno en que entra.",
+      "chorusName": "Blasting Off!",
+      "chorusText": "Si hace daño directo, al final del turno podés pagar 2 Ritmos. Si lo hacés, devolvela a tu mano.",
+      "image": "assets/cards/liberacion_es_navidad.jpg",
+      "variant": "Navidad",
+      "event": {
+        "id": "navidad_2026",
+        "name": "Navidad 2026",
+        "snowflakes": 6,
+        "opensAt": "2026-12-01T03:00:00Z"
+      },
+      "baseCard": "liberacion_es"
+    },
+    {
+      "id": "reputacion_navidad",
+      "name": "rePUTAción",
+      "type": "personaje",
+      "rarity": "single",
+      "cost": 4,
+      "atk": 4,
+      "def": 4,
+      "life": 3,
+      "album": "rePUTAción",
+      "passiveName": "Mala Prensa",
+      "passiveText": "La primera vez por turno que un efecto rival la seleccione, gana 1 contador de Reputación.",
+      "chorusName": "Que Hablen",
+      "chorusText": "Al llegar a 2 contadores de Reputación, robá 1 carta y la primera carta que juegues en tu próximo turno cuesta 1 Ritmo menos. Después reinicia sus contadores.",
+      "image": "assets/cards/reputacion_navidad.jpg",
+      "variant": "Navidad",
+      "event": {
+        "id": "navidad_2026",
+        "name": "Navidad 2026",
+        "snowflakes": 10,
+        "opensAt": "2026-12-01T03:00:00Z"
+      },
+      "baseCard": "reputacion"
+    },
+    {
+      "id": "todes_estamos_en_una_navidad",
+      "name": "Todes Estamos En Una",
+      "type": "personaje",
+      "rarity": "hit",
+      "cost": 4,
+      "atk": 3,
+      "def": 5,
+      "life": 3,
+      "album": "rePUTAción",
+      "passiveName": "Estamos En Una",
+      "passiveText": "Tus otros Personajes obtienen +1 DEF.",
+      "chorusName": "Todas Juntas",
+      "chorusText": "Si controlás 3 Personajes, todos tus Personajes obtienen +1 ATK hasta el final del turno.",
+      "image": "assets/cards/todes_estamos_en_una_navidad.jpg",
+      "variant": "Navidad",
+      "event": {
+        "id": "navidad_2026",
+        "name": "Navidad 2026",
+        "snowflakes": 15,
+        "opensAt": "2026-12-01T03:00:00Z"
+      },
+      "baseCard": "todes_estamos_en_una"
+    },
+    {
+      "id": "la_soga_navidad",
+      "name": "La Soga",
+      "type": "personaje",
+      "rarity": "deluxe",
+      "cost": 5,
+      "atk": 3,
+      "def": 3,
+      "life": 4,
+      "album": "Singles",
+      "passiveName": "Atados",
+      "passiveText": "Al entrar, los Personajes rivales pierden 1 DEF. Al comienzo de cada uno de tus turnos mientras La Soga siga en campo, vuelven a perder 1 DEF. Mínimo 1 DEF.",
+      "chorusName": "Ahorcamiento",
+      "chorusText": "Si estuvo en el tablero por 3 turnos, se activa el Estribillo: tus otros Personajes ganan +1 ATK y La Soga pierde 2 DEF.",
+      "image": "assets/cards/la_soga_navidad.jpg",
+      "variant": "Navidad",
+      "event": {
+        "id": "navidad_2026",
+        "name": "Navidad 2026",
+        "snowflakes": 20,
+        "opensAt": "2026-12-01T03:00:00Z"
+      },
+      "baseCard": "la_soga"
+    },
+    {
+      "id": "manifiesto_navidad",
+      "name": "Manifiesto",
+      "type": "personaje",
+      "rarity": "deluxe",
+      "cost": 5,
+      "atk": 5,
+      "def": 2,
+      "life": 4,
+      "album": "Algo Pa’ Recordar",
+      "passiveName": "Pasiva",
+      "passiveText": "Al entrar, todos los Personajes en el tablero, tuyos y rivales, obtienen -1 DEF hasta el comienzo de tu próximo turno.",
+      "chorusName": "Estribillo",
+      "chorusText": "Cuando el rival realiza su segundo ataque durante el mismo turno, queda preparado. Al comenzar tu próximo turno, obtiene +2 ATK durante ese turno.",
+      "image": "assets/cards/manifiesto_navidad.jpg",
+      "variant": "Navidad",
+      "event": {
+        "id": "navidad_2026",
+        "name": "Navidad 2026",
+        "snowflakes": 25,
+        "opensAt": "2026-12-01T03:00:00Z"
+      },
+      "baseCard": "manifiesto"
+    },
+    {
+      "id": "plastic_me_navidad",
+      "name": "Plastic Me",
+      "type": "personaje",
+      "rarity": "deluxe",
+      "cost": 5,
+      "album": "Singles",
+      "atk": 5,
+      "def": 5,
+      "life": 4,
+      "passiveName": "Imitación Perfecta",
+      "passiveText": "Una vez por turno, cuando el rival enfrentado recibe un aumento de ATK o DEF o recupera VIDA, copia ese aumento o la cantidad curada. Al copiar ATK o DEF obtiene +1 adicional en ese atributo; al curarse no supera su VIDA máxima. El bono de ATK se consume después de su próximo ataque y el de DEF dura hasta el final del próximo turno del rival.",
+      "chorusName": "Rompé el Molde",
+      "chorusText": "La primera vez en cada turno que sobrevive a un ataque de una carta rival, prepara un contraataque para su próximo turno. Ese contraataque respeta el límite de un ataque por turno.",
+      "image": "assets/cards/plastic_me_navidad.jpg",
+      "variant": "Navidad",
+      "event": {
+        "id": "navidad_2026",
+        "name": "Navidad 2026",
+        "snowflakes": 30,
+        "opensAt": "2026-12-01T03:00:00Z"
+      },
+      "baseCard": "plastic_me"
+    },
+    {
+      "id": "lighty",
+      "name": "Lighty",
+      "type": "objeto",
+      "rarity": "reliquia",
+      "cost": 3,
+      "album": "Navidad 2026",
+      "variant": "",
+      "effectText": "El Personaje al que esté unido gana +1 ATK y +1 DEF mientras Lighty siga equipado.",
+      "image": "assets/personajes/lighty.webp",
+      "imageIsReference": true,
+      "event": {
+        "id": "navidad_2026",
+        "name": "Navidad 2026",
+        "snowflakes": 35,
+        "opensAt": "2026-12-01T03:00:00Z"
+      }
     }
-  ]
+  ],
+  "version": "4.9.0",
+  "build": 35,
+  "updated": "2026-11-06"
 }
