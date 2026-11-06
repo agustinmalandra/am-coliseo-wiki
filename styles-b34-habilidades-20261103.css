@@ -71,3 +71,8 @@
 .ability-audio-card .ability-audio-caption{margin-top:10px;font-size:12px;color:#b4afc5}
 .ability-audio-card .ability-audio-error:not([hidden]){margin-top:8px;font-size:12px;color:#ffb7b7}
 @media(max-width:520px){.ability-audio-card{padding:17px 14px 15px;margin:16px 0 22px}.ability-audio-top{gap:12px}.ability-audio-symbol{flex-basis:42px;width:42px;height:42px;font-size:25px}.ability-audio-card h2{font-size:18px}}
+/* Tabla 4.9: la resistencia leve tiene su propia señal visual. */
+.matrix td.res-light{background:#302544;color:#d3c1ff;font-weight:700}
+.affinity-block[data-affinity-kind="mixed-weakness"]{border-color:#997b4e}
+.affinity-block[data-affinity-kind="light-resistance"],.affinity-block[data-affinity-kind="mixed-resistance"]{border-color:#6e5a91}
+.affinity-matchup{display:inline-flex}

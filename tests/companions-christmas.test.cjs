@@ -108,8 +108,8 @@ test('old album URLs remain selected and search input stays escaped',()=>{
 test('the download points to the new build and all current scripts are cache-busted',()=>{
  const app=read('app-b34-habilidades-tcg-20261103.js');
  const url=new URL(app.match(/const GAME_APK_URL="([^"]+)"/)[1]);
- assert.equal(url.pathname,'/scl/fi/8rpphm0ataskr8398w6hy/AM-MULTIVERSO-V-4.9.0-b-35.apk');
- assert.equal(url.searchParams.get('rlkey'),'384zdl31h0nplzbd78yhabc7e');assert.equal(url.searchParams.get('dl'),'1');
+ assert.equal(url.pathname,'/scl/fi/7tng65rmsw0vj56xh115l/AM-MULTIVERSO-V-4.9.0-Build-35.apk');
+ assert.equal(url.searchParams.get('rlkey'),'0295d22xbuk7erql45gv0iiho');assert.equal(url.searchParams.get('dl'),'1');
  const html=read('index.html');assert.ok(html.includes('258 cartas TCG'));assert.ok(html.includes('389 movimientos'));
  for(const path of ['data/tcg_catalogo.js','tcg/tcg.js','tcg/tcg.css'])assert.ok(html.includes(`${path}?v=mascotas-navidad-20261106`));
 });
