@@ -17,7 +17,7 @@ function makePage(){
  const listeners={};
  const context={window:{addEventListener(){},scrollTo(){}},document:{getElementById:node,querySelector:()=>node('menu-toggle'),querySelectorAll:()=>[],addEventListener(type,fn){(listeners[type]??=[]).push(fn);}},location:{hash:'#personaje/abejita'},localStorage:{getItem:()=>null},URLSearchParams};
  vm.createContext(context);
- for(const p of ['data/catalogo-b34-20261101-fix2.js','data/devlog.js','core.js','data/tcg_catalogo.js','tcg/tcg.js','data/sinergias-b35.js','data/arena-b35.js','expansions-b35.js','app-b34-habilidades-tcg-20261103.js'])vm.runInContext(read(p),context,{filename:p});
+ for(const p of ['coliseo/catalogo.js','coliseo/media.js','coliseo/portada.js','data/catalogo-b34-20261101-fix2.js','data/devlog.js','core.js','data/tcg_catalogo.js','tcg/tcg.js','data/sinergias-b35.js','data/arena-b35.js','expansions-b35.js','app-b34-habilidades-tcg-20261103.js'])vm.runInContext(read(p),context,{filename:p});
  function route(path){context.location.hash='#'+path;context.window.ColiseoWiki.route();return node('contenido').innerHTML;}
  return{context,node,listeners,route};
 }
