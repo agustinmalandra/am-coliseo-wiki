@@ -10,7 +10,15 @@
   const mechanics = dev + '/1789819/nuevas-mecnicas-de-batallas-podrs-con-tanto-poder';
   const sections = [['inicio','Inicio'],['personajes','Personajes'],['movimientos','Movimientos'],['pasivas','Pasivas'],['objetos','Objetos y runas'],['mecanicas','Mecánicas'],['vinculos','Vínculos'],['elevaciones','Elevaciones'],['desafios','Desafíos'],['novedades','Novedades']];
   const chars = new Map(D.characters.map(c => [c.id,c]));
-  const moves = new Map(D.moves.map(m => [m.id,m]));
+  const allMoves = [...D.moves,...D.bondAttacks];
+  const moves = new Map(allMoves.map(m => [m.id,m]));
+  const guards = new Map(D.reserveGuards.map(g => [g.character,g]));
+  const attackByBond = new Map(D.bondAttacks.map(m => [m.bondId,m]));
+  const attacksFor = id => D.bondAttacks.filter(m=>m.leader===id||m.partner===id);
+  const moveSource = m => m.bond?'Ataque de Vínculo':m.personal?'Runa personal':'Repertorio';
+  const guardGuide = '#mecanicas/guardia-de-reserva';
+  const attackGuide = '#mecanicas/ataques-de-vinculo';
+  const attackIndex = '#movimientos?source=Ataque+de+V%C3%ADnculo';
   const items = new Map(D.equipment.map(o => [o.id,o]));
   const bonds = new Map(D.bonds.map(b => [b.id,b]));
   const elev = new Map(D.elevations.map(e => [e.character,e]));
@@ -117,8 +125,11 @@
     show();
   }
   function home() {
-    return '<section class="hero"><img fetchpriority="high" src="media/portada.webp" alt="Ilustración oficial de AM: Coliseo con sus combatientes en la arena"><div class="hero-copy"><div class="eyebrow">Wiki oficial · Android · '+versionTag+'</div><h1>La batalla, expandida.</h1><p class="sub">Armá tu equipo, conocé lo que puede hacer cada combatiente y elegí cuándo guardar tu mejor técnica. Esta es la enciclopedia del juego independiente <strong>AM: Coliseo</strong>.</p><div class="button-row">'+button('#personajes','Explorar personajes','gold')+button('#descarga','Descargar para Android ↓')+'</div></div></section>'
+    return '<section class="hero"><img fetchpriority="high" src="media/portada.webp" alt="Ilustración oficial de AM: Coliseo con sus combatientes en la arena"><div class="hero-copy"><div class="eyebrow">Wiki oficial · Android · '+versionTag+'</div><h1>La batalla, expandida.</h1><p class="sub">Armá tu equipo y decidí cuándo cubrir a un aliado desde la reserva o reunir a tu dupla para un Ataque de Vínculo. Esta es la enciclopedia del juego independiente <strong>AM: Coliseo</strong>.</p><div class="button-row">'+button('#personajes','Explorar personajes','gold')+button('#descarga','Descargar para Android ↓')+'</div></div></section>'
       +'<div class="stat-strip" aria-label="Contenido del juego">'+[[D.characters.length,'Personajes','#personajes'],[basicMoves,'Movimientos','#movimientos'],[D.equipment.length,'Objetos, runas y hechizos','#objetos'],[D.elevations.length,'Elevaciones','#elevaciones']].map(([n,l,h])=>'<a href="'+h+'"><strong>'+n+'</strong>'+escape(l)+'</a>').join('')+'</div>'
+      +'<section class="block">'+head('Combate 2v2 · 0.16.0','Guardia y Vínculo')+'<div class="split">'+
+        tile(D.reserveGuards.length+' guardianes','Guardia de Reserva','Elegí a quién cubrir antes del golpe y conocé el efecto de cada guardián.',guardGuide)+
+        tile(D.bondAttacks.length+' técnicas','Ataques de Vínculo','Dos aliados en campo, dos órdenes y un ataque en área.',attackIndex)+'</div></section>'
       +'<section class="block">'+head('Última incorporación al plantel','Nuevas caras del Coliseo')+window.AMColiseoFront.recent()+'</section>'
       +'<section class="block">'+head('Antes de entrar a la arena','Encontrá tu próxima jugada')+'<div class="shortcuts">'+[
         tile('01 · Guía de combate','Formatos y mecánicas','1v1, 2v2, reservas, estados y Batalla Colosal 4v4 en beta.','#mecanicas'),
@@ -131,11 +142,11 @@
   }
   function roster() {
     root.innerHTML=heading('Enciclopedia · '+D.characters.length+' combatientes','Personajes','Filtrá por elemento o rol oficial y abrí una ficha para ver estadísticas, técnicas y vínculos.')
-      +toolbar('Nombre, elemento o especialidad',select('element','Elemento',D.elements),select('role','Rol',nativeRoles));
-    filtering([...D.characters].sort(nameSort),(c,f)=>(!f.element||c.elements.includes(f.element))&&(!f.role||c.roles.includes(f.role))&&match(f.q,c.name,c.id,c.identity,c.profile,c.elements,c.roles),list=>'<div class="grid">'+list.map(fighterCard).join('')+'</div>','personajes');
+      +toolbar('Nombre, elemento o especialidad',select('element','Elemento',D.elements),select('role','Rol',nativeRoles),select('combat','Mecánica',['Guardia de Reserva','Ataque de Vínculo']));
+    filtering([...D.characters].sort(nameSort),(c,f)=>(!f.element||c.elements.includes(f.element))&&(!f.role||c.roles.includes(f.role))&&(!f.combat||(f.combat==='Guardia de Reserva'?guards.has(c.id):attacksFor(c.id).length>0))&&match(f.q,c.name,c.id,c.identity,c.profile,c.elements,c.roles,guards.get(c.id)?.name,...attacksFor(c.id).map(m=>m.name)),list=>'<div class="grid">'+list.map(fighterCard).join('')+'</div>','personajes');
   }
   function table(ms) {
-    return '<div class="tablebox" tabindex="0" role="region" aria-label="Estadísticas de movimientos"><table><thead><tr><th scope="col">Movimiento</th><th scope="col">Elemento</th><th scope="col">Tipo</th><th scope="col">Potencia</th><th scope="col">Descanso</th><th scope="col">Precisión</th></tr></thead><tbody>'+ms.map(m=>'<tr><td><a data-result href="'+moveUrl(m.id)+'">'+escape(m.name)+'</a>'+(m.personal?' '+chip('Runa','gold'):'')+'</td><td>'+el(m.element)+'</td><td>'+escape(m.type)+'</td><td>'+(m.power||'—')+'</td><td>'+m.rest+'</td><td>'+pct(m.accuracy)+'</td></tr>').join('')+'</tbody></table></div>';
+    return '<div class="tablebox" tabindex="0" role="region" aria-label="Estadísticas de movimientos"><table><thead><tr><th scope="col">Movimiento</th><th scope="col">Elemento</th><th scope="col">Tipo</th><th scope="col">Potencia</th><th scope="col">Descanso</th><th scope="col">Precisión</th></tr></thead><tbody>'+ms.map(m=>'<tr><td><a data-result href="'+moveUrl(m.id)+'">'+escape(m.name)+'</a>'+(m.bond?' '+chip('Vínculo','gold'):m.personal?' '+chip('Runa','gold'):'')+'</td><td>'+el(m.element)+'</td><td>'+escape(m.type)+'</td><td>'+(m.power||'—')+'</td><td>'+m.rest+'</td><td>'+pct(m.accuracy)+'</td></tr>').join('')+'</tbody></table></div>';
   }
   function defense(c) {
     const bands=new Map();
@@ -150,17 +161,27 @@
     const related = D.bonds.filter(b=>b.first===c.id||b.second===c.id);
     const rupture = breaks.get(c.id);
     const form = elev.get(c.id);
+    const guard = guards.get(c.id);
+    const shared = attacksFor(c.id);
     return back('personajes','Personajes')+'<header class="details-top">'+imageFor(c)+'<div><div class="eyebrow">Ficha de combatiente · '+escape(c.id)+'</div><h1>'+escape(c.name)+'</h1><div class="pills">'+c.elements.map(el).join('')+roleChips(c)+'</div><p class="sub" style="margin-top:10px">'+escape(c.identity)+'</p><div class="stats" aria-label="Estadísticas base">'+Object.entries(statLabels).map(([k,v])=>'<div><span>'+v+'</span><strong>'+c.stats[k]+'</strong></div>').join('')+ '</div></div></header><div class="panel">'+defense(c)+'</div>'
       +(rupture||form||reserve||related.length?'<div class="split block">'+(rupture?'<article class="panel"><div class="eyebrow">Ruptura de Anomalía</div><h3>'+escape(rupture.name)+'</h3><p class="copy">'+escape(rupture.effect)+'</p><details><summary>Cómo carga Distorsión</summary><p class="copy">'+escape(rupture.charges)+'</p></details></article>':'')+(form?'<article class="panel"><div class="eyebrow">Álbum de Elevaciones</div><h3>'+inline(elevationUrl(c.id),form.name)+'</h3><p class="copy">Forma especial al activar el Hechizo de Elevación.</p></article>':'')+(reserve?'<article class="panel"><div class="eyebrow">Runa personal</div><h3>'+inline(itemUrl(reserve.id),reserve.name)+'</h3><p class="copy">Quinta técnica de un uso: '+moveLink(reserve.move)+'.</p></article>':'')+(related.length?'<article class="panel"><div class="eyebrow">Álbum de vínculos</div><h3>Alianzas y rivalidades</h3><ul>'+related.map(b=>'<li>'+inline(bondUrl(b.id),b.name)+'</li>').join('')+'</ul></article>':'')+'</div>':'')
+      +(guard||shared.length?'<section class="block">'+head('Acciones especiales · 2v2','Guardia y Vínculos')+'<div class="split">'+
+        (guard?'<article class="panel"><div class="eyebrow">Guardia de Reserva</div><h3>'+escape(guard.name)+'</h3><p class="copy">'+escape(guard.description)+'</p><p class="fine">'+inline(guardGuide,'Cómo cubrir a un aliado')+'</p></article>':'')+
+        (shared.length?'<article class="panel"><div class="eyebrow">Ataques de Vínculo</div><h3>Técnicas de dúo</h3><ul>'+shared.map(m=>'<li>'+moveLink(m.id)+' · con '+charLink(m.leader===c.id?m.partner:m.leader)+'</li>').join('')+'</ul></article>':'')+'</div></section>':'')
       +'<section class="block">'+head('Configuración','Pasivas')+'<div class="passives">'+c.passives.map(p=>pCard(c,p)).join('')+'</div></section>'
       +'<section class="block">'+head('Equipá 4 técnicas','Movimientos ('+c.moves.length+')')+(c.recommended.length?'<p class="sub">Selección inicial sugerida por el juego: '+c.recommended.map(moveLink).join(', ')+'.</p>':'')+table(c.moves.map(id=>moves.get(id)))+'</section>'+sound(c);
   }
   function moveIndex() {
-    root.innerHTML=heading('Técnicas · '+basicMoves+' de repertorio + '+personalMoves+' rúnicas','Movimientos','Compará potencia, precisión y descanso. Las técnicas de runa personal se marcan aparte y no forman parte del repertorio normal.')
-      +toolbar('Nombre, efecto o código',select('element','Elemento',D.elements),select('type','Tipo',['Físico','Mágico','Apoyo']),select('source','Disponibilidad',['Repertorio','Runa personal']));
-    filtering([...D.moves].sort(nameSort),(m,f)=>(!f.element||m.element===f.element)&&(!f.type||m.type===f.type)&&(!f.source||(m.personal?'Runa personal':'Repertorio')===f.source)&&match(f.q,m.name,m.id,m.description,m.element,m.traits,chars.get(m.owner)?.name),table,'movimientos');
+    root.innerHTML=heading('Técnicas · '+basicMoves+' de repertorio + '+personalMoves+' rúnicas + '+D.bondAttacks.length+' de Vínculo','Movimientos','Compará potencia, precisión y descanso. Las técnicas rúnicas y de Vínculo se marcan aparte y no forman parte del repertorio normal.')
+      +toolbar('Nombre, efecto o código',select('element','Elemento',D.elements),select('type','Tipo',['Físico','Mágico','Apoyo']),select('source','Disponibilidad',['Repertorio','Runa personal','Ataque de Vínculo']));
+    filtering([...allMoves].sort(nameSort),(m,f)=>(!f.element||m.element===f.element)&&(!f.type||m.type===f.type)&&(!f.source||moveSource(m)===f.source)&&match(f.q,m.name,m.id,m.description,m.element,m.traits,chars.get(m.owner)?.name,chars.get(m.leader)?.name,chars.get(m.partner)?.name),table,'movimientos');
   }
   function moveDetail(m) {
+    if (m.bond) return back('movimientos?source=Ataque+de+V%C3%ADnculo','Ataques de Vínculo')+heading('Ataque de Vínculo · '+m.type,m.name)+
+      '<div class="panel"><div class="pills">'+el(m.element)+chip('Área · una vez por equipo y combate','gold')+'</div><p>'+escape(m.description)+'</p><div class="stats">'+
+      [['Potencia',m.power],['Precisión',pct(m.accuracy)],['Crítico',pct(m.critical)],['Prioridad',m.priority]].map(([key,value])=>'<div><span>'+escape(key)+'</span><strong>'+escape(value)+'</strong></div>').join('')+
+      '</div><details><summary>Animación de la técnica</summary><p class="copy">'+escape(m.animation)+'</p></details></div><section class="block">'+head('Ambos aliados en campo','La dupla')+
+      '<div class="grid">'+[m.leader,m.partner].map(id=>fighterCard(chars.get(id))).join('')+'</div><p class="copy">'+inline(bondUrl(m.bondId),'Ver la alianza y su historia')+' · '+inline(attackGuide,'Cómo se usa un Ataque de Vínculo')+'</p></section>';
     const knows = m.personal ? [chars.get(m.owner)].filter(Boolean) : D.characters.filter(c=>c.moves.includes(m.id)).sort(nameSort);
     const values = [['Potencia',m.power||'—'],['Descanso',m.rest],['Precisión',pct(m.accuracy)],['Crítico',pct(m.critical)],['Prioridad',m.priority],['Objetivo',aim[m.target]??m.target]];
     return back('movimientos','Movimientos')+heading(m.id+' · '+m.type,m.name)+
@@ -202,25 +223,32 @@
   }
   function bondIndex() {
     root.innerHTML=heading('Álbum · '+D.bonds.length+' vínculos','Vínculos','Encontrá qué pasa cuando dos aliados comparten el campo o cuando dos rivales se enfrentan.')
-      +toolbar('Vínculo, personaje o ambiente',select('type','Tipo',['Alianza','Rivalidad']));
-    filtering([...D.bonds].sort(nameSort),(b,f)=>(!f.type||(b.rivalry?'Rivalidad':'Alianza')===f.type)&&match(f.q,b.name,chars.get(b.first)?.name,chars.get(b.second)?.name,D.environments.find(e=>e.id===b.environment)?.name),list=>'<div class="tiles">'+list.map(b=>'<article class="panel"><div class="eyebrow">'+(b.rivalry?'Rivalidad':'Alianza')+'</div><h3><a class="inline" data-result href="'+bondUrl(b.id)+'">'+escape(b.name)+'</a></h3><p class="copy">'+bondSubtitle(b)+'</p><p class="fine">'+escape(b.hint)+'</p></article>').join('')+'</div>','vínculos');
+      +'<p class="sub">'+inline(attackIndex,'Explorá los '+D.bondAttacks.length+' Ataques de Vínculo')+' de las duplas aliadas.</p>'
+      +toolbar('Vínculo, ataque, personaje o ambiente',select('type','Tipo',['Alianza','Rivalidad']));
+    filtering([...D.bonds].sort(nameSort),(b,f)=>(!f.type||(b.rivalry?'Rivalidad':'Alianza')===f.type)&&match(f.q,b.name,chars.get(b.first)?.name,chars.get(b.second)?.name,D.environments.find(e=>e.id===b.environment)?.name,attackByBond.get(b.id)?.name),list=>'<div class="tiles">'+list.map(b=>{
+      const attack=attackByBond.get(b.id);
+      return '<article class="panel"><div class="eyebrow">'+(b.rivalry?'Rivalidad':'Alianza')+'</div><h3><a class="inline" data-result href="'+bondUrl(b.id)+'">'+escape(b.name)+'</a></h3><p class="copy">'+bondSubtitle(b)+'</p><p class="fine">'+escape(b.hint)+'</p>'+
+        (attack?'<p class="fine">Ataque de Vínculo · '+moveLink(attack.id)+'</p>':'')+'</article>';
+    }).join('')+'</div>','vínculos');
   }
   function bondDetail(b) {
-    return back('vinculos','Vínculos')+heading('Álbum de vínculos',b.name,b.reveal)+bondInfo(b);
+    const attack=attackByBond.get(b.id);
+    return back('vinculos','Vínculos')+heading('Álbum de vínculos',b.name,b.reveal)+bondInfo(b)+
+      (attack?'<article class="panel block"><div class="eyebrow">Técnica de dúo · 2v2</div><h3>'+moveLink(attack.id)+'</h3><p class="copy">'+escape(attack.description)+'</p><p class="fine">'+inline(attackGuide,'Cómo se lanzan los Ataques de Vínculo')+'</p></article>':'');
   }
   function elevationCard(e) {
     const c=chars.get(e.character);
-    return '<a class="fighter elevation" data-result href="'+elevationUrl(e.character)+'">'+imageFor(c,true)+'<div class="elevation-body"><div class="eyebrow">'+escape(c.name)+'</div><h3 class="form-name">'+escape(e.name)+'</h3>'+(e.new?chip('Nueva en '+D.version,'gold'):'')+'</div></a>';
+    return '<a class="fighter elevation" data-result href="'+elevationUrl(e.character)+'">'+imageFor(c,true)+'<div class="elevation-body"><div class="eyebrow">'+escape(c.name)+'</div><h3 class="form-name">'+escape(e.name)+'</h3>'+(e.new?chip('Nueva en '+D.elevationExpansionVersion,'gold'):'')+'</div></a>';
   }
   function elevations() {
     root.innerHTML=heading('Álbum · '+D.elevations.length+' transformaciones','Elevaciones','Todas las formas especiales del juego, con sus historias. No confundir con las Rupturas de Anomalía.')
-      +'<div class="elev-intro"><div class="note"><strong>Cómo se desbloquean</strong><p>Equipá el '+inline(itemUrl('hechizo_de_elevacion'),'Hechizo de Elevación')+' y elevá al personaje en combate. La ficha se registra aunque no ganes.</p><p>La versión '+D.version+' suma '+D.elevations.filter(e=>e.new).length+' formas y extiende la animación de entrada.</p></div><img class="elev-promo" src="media/album.webp" alt="Flyer de la actualización de Runas y Elevación" loading="lazy"></div>'
-      +toolbar('Personaje o nombre de la forma',select('era','Colección',['Nuevas en '+D.version,'Anteriores']));
-    filtering([...D.elevations].sort((a,b)=>Number(b.new)-Number(a.new)||nameSort(chars.get(a.character),chars.get(b.character))),(e,f)=>(!f.era||(e.new?'Nuevas en '+D.version:'Anteriores')===f.era)&&match(f.q,chars.get(e.character).name,e.name),list=>'<div class="grid">'+list.map(elevationCard).join('')+'</div>','formas');
+      +'<div class="elev-intro"><div class="note"><strong>Cómo se desbloquean</strong><p>Equipá el '+inline(itemUrl('hechizo_de_elevacion'),'Hechizo de Elevación')+' y elevá al personaje en combate. La ficha se registra aunque no ganes.</p><p>La versión '+D.elevationExpansionVersion+' sumó '+D.elevations.filter(e=>e.new).length+' formas y extiende la animación de entrada.</p></div><img class="elev-promo" src="media/album.webp" alt="Flyer de la actualización de Runas y Elevación" loading="lazy"></div>'
+      +toolbar('Personaje o nombre de la forma',select('era','Colección',['Nuevas en '+D.elevationExpansionVersion,'Anteriores']));
+    filtering([...D.elevations].sort((a,b)=>Number(b.new)-Number(a.new)||nameSort(chars.get(a.character),chars.get(b.character))),(e,f)=>(!f.era||(e.new?'Nuevas en '+D.elevationExpansionVersion:'Anteriores')===f.era)&&match(f.q,chars.get(e.character).name,e.name),list=>'<div class="grid">'+list.map(elevationCard).join('')+'</div>','formas');
   }
   function elevationDetail(e) {
     const c=chars.get(e.character);
-    return back('elevaciones','Elevaciones')+'<header class="details-top">'+imageFor(c,true)+'<div><div class="eyebrow">Forma elevada · '+escape(c.name)+'</div><h1>'+escape(e.name)+'</h1><p class="sub">'+charLink(c.id)+'</p>'+(e.new?chip('Nueva en '+D.version,'gold'):'')+'</div></header><article class="panel"><div class="eyebrow">Historia del álbum</div><p>'+escape(e.lore)+'</p></article>';
+    return back('elevaciones','Elevaciones')+'<header class="details-top">'+imageFor(c,true)+'<div><div class="eyebrow">Forma elevada · '+escape(c.name)+'</div><h1>'+escape(e.name)+'</h1><p class="sub">'+charLink(c.id)+'</p>'+(e.new?chip('Nueva en '+D.elevationExpansionVersion,'gold'):'')+'</div></header><article class="panel"><div class="eyebrow">Historia del álbum</div><p>'+escape(e.lore)+'</p></article>';
   }
   function matchupTable(){
     const values = {'1':'×1','0.75':'×0,75','0.85':'×0,85','1.25':'×1,25'};
@@ -232,10 +260,16 @@
   function ruptures(){
     return '<div class="tiles">'+[...D.ruptures].sort((a,b)=>nameSort(chars.get(a.character),chars.get(b.character))).map(r=>'<article class="panel"><div class="eyebrow">Ruptura · '+charLink(r.character)+'</div><h3>'+escape(r.name)+'</h3><p class="copy">'+escape(r.effect)+'</p><details><summary>Cómo carga Distorsión</summary><p class="copy">'+escape(r.charges)+'</p></details></article>').join('')+'</div>';
   }
+  function guideCatalogue(id) {
+    if (id==='guardia-de-reserva') return '<div class="block">'+head('Efectos al interceptar',D.reserveGuards.length+' guardianes')+'<div class="tiles">'+
+      [...D.reserveGuards].sort((a,b)=>nameSort(chars.get(a.character),chars.get(b.character))).map(g=>'<article class="panel guard-card"><div class="eyebrow">'+charLink(g.character)+'</div><h3>'+escape(g.name)+'</h3><p class="copy">'+escape(g.description)+'</p></article>').join('')+'</div></div>';
+    if (id==='ataques-de-vinculo') return '<div class="button-row">'+button(attackIndex,'Ver las '+D.bondAttacks.length+' técnicas y sus efectos','gold')+button('#vinculos','Explorar las alianzas')+'</div>';
+    return '';
+  }
   function rules() {
-    return heading('Manual · '+versionTag,'Mecánicas de combate','De elegir los cuatro movimientos a combinar afinidades, runas, ambientes y Rupturas.')
+    return heading('Manual · '+versionTag,'Mecánicas de combate','Desde las acciones de cada ronda hasta la Guardia de Reserva, los Ataques de Vínculo, las runas y las Rupturas.')
       +'<div class="guide-index" aria-label="Ir a una sección">'+[...guide.map(g=>[g.id,g.title]),['afinidades','Tabla de afinidades'],['ambientes','Ambientes'],['rupturas','Rupturas']].map(([id,title])=>'<a href="#mecanicas/'+id+'">'+escape(title)+'</a>').join('')+'</div><div id="section-guide">'
-      +guide.map(g=>'<section class="block" id="guia-'+g.id+'">'+head('Guía',g.title)+'<div class="tiles">'+g.cards.map(([h,p])=>'<article class="panel"><h3>'+escape(h)+'</h3><p class="copy">'+escape(p)+'</p></article>').join('')+'</div></section>').join('')
+      +guide.map(g=>'<section class="block" id="guia-'+g.id+'">'+head('Guía',g.title)+'<div class="tiles">'+g.cards.map(([h,p])=>'<article class="panel"><h3>'+escape(h)+'</h3><p class="copy">'+escape(p)+'</p></article>').join('')+'</div>'+guideCatalogue(g.id)+'</section>').join('')
       +'<section class="block" id="guia-afinidades">'+head('Elemento del movimiento × elemento defensor','Tabla de afinidades')+'<p class="sub">×1,25 es ventaja, ×0,75 resistencia, ×0,85 resistencia leve y ×1 neutral. Los cruces son direccionales. Por ejemplo, Agua contra Fuego es ×1,25.</p>'+matchupTable()+'</section>'
       +'<section class="block" id="guia-ambientes">'+head('Campo de batalla',D.environments.length+' ambientes')+fieldGrid()+'</section>'
       +'<section class="block" id="guia-rupturas">'+head('Anomalías',D.ruptures.length+' Rupturas')+ruptures()+'</section></div>';
@@ -250,7 +284,11 @@
       +'<div class="panel"><div class="button-row" style="margin-top:0">'+external(dl,'Descargar en itch.io','button gold')+external(dev,'Ver devlog oficial')+'</div><p class="copy" style="margin-top:14px">Si ya tenés instalada una versión anterior y el modo online pide actualizar, descargá la última desde la misma página.</p></div><section class="block note">Para descargar <strong>AM: Multiverso</strong>, entrá a '+inline('../index.html#descarga','su página de descarga')+'. Es otra aplicación.</section>';
   }
   function news() {
-    return heading('Novedades · '+versionTag,'Qué cambió en la arena','Las actualizaciones del juego independiente, con enlaces al devlog oficial.')
+    return heading('Novedades · '+versionTag,'Qué cambió en la arena','Las actualizaciones del juego independiente, con enlaces a sus fichas y a los devlogs publicados.')
+      +'<section class="split block release-spotlight" aria-label="Guardia y Vínculo"><div>'+
+        '<article class="panel"><div class="eyebrow">Versión 0.16.0</div><h3>Guardia de Reserva</h3><p class="copy">Doce guardianes con efectos propios pueden entrar desde la reserva para interceptar un ataque individual. La entrada muestra un escudo luminoso, partículas y el sonido de pasiva.</p><div class="button-row">'+button(guardGuide,'Cómo usar Guardia')+'</div></article>'+
+        '<article class="panel block"><div class="eyebrow">Versión 0.15.0 · Disponible en 0.16.0</div><h3>Ataques de Vínculo</h3><p class="copy">Veintiocho técnicas de dúo reúnen las dos órdenes de la ronda en un ataque en área, con cartel, efectos visuales y sonidos de habilidad propios.</p><div class="button-row">'+button(attackIndex,'Ver las 28 técnicas')+button(attackGuide,'Cómo se activan')+'</div></article></div>'+
+        '<a class="release-flyer" href="media/guardia-y-vinculo.webp"><img src="media/guardia-y-vinculo.webp" alt="Versión 0.16.0, Guardia y Vínculo. Doce guardianes de reserva y veintiocho técnicas de dúo." width="720" height="1080" loading="lazy" decoding="async"></a></section>'
       +'<div class="split"><article class="panel"><div class="eyebrow">19 de noviembre de 2026</div><h3>Seis Elevaciones nuevas</h3><p class="copy">El álbum pasó de 10 a 16 formas. La entrada animada dura más, el inicio horizontal muestra los accesos sin scroll, el panel de combate deja ver más de la arena y los retratos de reserva van a los costados. Ahora se puede previsualizar una técnica rúnica personal manteniendo presionado su botón.</p><div class="button-row">'+button('#elevaciones','Ver el álbum')+external(latest,'Leer la nota oficial')+'</div></article><article class="panel"><div class="eyebrow">18 de noviembre de 2026</div><h3>Runas, Elevación y Batalla Colosal</h3><p class="copy">Se documentan las runas elementales y personales, el Hechizo de Elevación y el formato 4v4 contra CPU. El devlog explica qué efectos pueden potenciarse y qué modos admiten estas mecánicas.</p><div class="button-row">'+button('#mecanicas','Ver las reglas')+external(mechanics,'Leer la nota oficial')+'</div></article></div>';
   }
   const notFound = () => heading('Página no encontrada','No está en este archivo','Volvé al inicio de la wiki de AM: Coliseo.')+button('#inicio','Volver al inicio','gold');

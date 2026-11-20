@@ -6,7 +6,7 @@ const vm=require('node:vm');
 const base=path.join(__dirname,'..');
 const read=p=>fs.readFileSync(path.join(base,p),'utf8');
 const context=vm.createContext({window:{}});
-for(const p of ['catalogo.js','media.js','guia.js'])vm.runInContext(read('coliseo/'+p),context);
+for(const p of ['catalogo.js','combate.js','media.js','guia.js'])vm.runInContext(read('coliseo/'+p),context);
 const {AMColiseoCatalog:d,AMColiseoMedia:media}=context.window;
 const by=new Map(d.characters.map(c=>[c.id,c]));
 const kit=new Map(d.equipment.map(i=>[i.id,i]));
@@ -15,8 +15,9 @@ const rupture=new Set(d.ruptures.map(r=>r.character));
 const local=p=>assert.ok(fs.statSync(path.join(base,p)).size>0,p);
 
 test('published Flutter release catalogue is complete and independent from Multiverso',()=>{
-  assert.equal(d.version,'0.14.11');
-  assert.equal(d.build,38);
+  assert.equal(d.version,'0.16.0');
+  assert.equal(d.elevationExpansionVersion,'0.14.11');
+  assert.equal(d.build,40);
   assert.equal(by.size,153);
   assert.equal(mv.size,596);
   assert.equal(d.moves.filter(m=>!m.personal).length,583);
@@ -77,7 +78,7 @@ test('art and audio mappings only point to nonempty files',()=>{
   for(const id of media.objects)local('assets/objetos/'+id+'.webp');
   for(const id of media.extraObjects)local('coliseo/media/'+id+'.webp');
   for(const [id,file] of Object.entries(media.audio)){assert.ok(by.has(id));local('assets/audio/habilidades/'+file);}
-  for(const file of ['emblema','album','portada'])local('coliseo/media/'+file+'.webp');
+  for(const file of ['emblema','album','portada','guardia-y-vinculo'])local('coliseo/media/'+file+'.webp');
 });
 test('main page and both download targets stay separate',()=>{
   assert.match(read('app-b34-habilidades-tcg-20261103.js'),/coliseo\/index\.html#inicio/);
@@ -90,7 +91,7 @@ test('the public homepage leads with current data and all five recent fighters',
   const f=context.window.AMColiseoFront;
   const home=f.rootPage();
   assert.match(home,/<h1[^>]*>AM: Coliseo<\/h1>/);
-  assert.match(home,/Juego independiente · Android · 0\.14\.11/);
+  assert.match(home,/Juego independiente · Android · 0\.16\.0/);
   for(const [id,name] of [['dracosound','Dracosund'],['sirenial','Sirenial'],['awifight','Awifight'],['ippa','Ippa'],['psicwolf','Psicwolf']]){
     assert.ok(home.includes('coliseo/index.html#personaje/'+id));
     assert.ok(home.includes('>'+name+'<'));
@@ -101,4 +102,29 @@ test('the public homepage leads with current data and all five recent fighters',
   assert.match(home,/<strong>583<\/strong>/);
   assert.match(home,/href="#multiverso"/);
   assert.doesNotMatch(home,/<strong>(115|389)<\/strong>/);
+});
+
+test('reserve guards and shared attacks have complete, separate catalogues',()=>{
+  const guards=d.reserveGuards;
+  const attacks=d.bondAttacks;
+  assert.equal(guards.length,12);
+  assert.equal(attacks.length,28);
+  assert.equal(new Set(guards.map(g=>g.character)).size,12);
+  assert.equal(new Set(attacks.map(a=>a.id)).size,28);
+  assert.equal(new Set(attacks.map(a=>a.bondId)).size,28);
+  for(const g of guards) assert.ok(by.has(g.character)&&g.name&&g.description);
+  const shards=guards.find(g=>g.character==='inciner_fragmentos');
+  assert.equal(shards.name,'Guardia de Esquirlas');
+  assert.match(shards.description,/Astillas.*escudo/);
+  for(const a of attacks){
+    const b=d.bonds.find(b=>b.id===a.bondId);
+    assert.ok(b&&!b.rivalry,a.id);
+    assert.deepEqual([b.first,b.second].sort(),[a.leader,a.partner].sort());
+    assert.ok(by.has(a.leader)&&by.has(a.partner)&&a.description&&a.animation);
+    assert.equal(a.target,'all_enemies');
+    assert.equal(a.accuracy,.95);
+    assert.equal(a.critical,0);
+    assert.ok(!mv.has(a.id)&&!d.characters.some(c=>c.moves.includes(a.id)));
+  }
+  assert.ok(d.bonds.filter(b=>!b.rivalry).every(b=>attacks.some(a=>a.bondId===b.id)));
 });

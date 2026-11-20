@@ -137,3 +137,10 @@ details[open] summary{margin-bottom:9px}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important}}
 audio{display:block;width:min(100%,340px);height:42px;margin-top:7px}
 .tablebox:focus-visible{outline-offset:2px}
+
+/* Spotlight del devlog 0.16.0. El flyer se mantiene legible en móvil. */
+.release-spotlight{align-items:start;grid-template-columns:minmax(0,1fr) minmax(220px,360px)}
+.release-flyer{display:block;width:100%;max-width:360px;justify-self:center}
+.release-flyer img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:var(--radius)}
+.guard-card .eyebrow a{text-transform:none}
+@media(max-width:600px){.release-spotlight{grid-template-columns:minmax(0,1fr)}}

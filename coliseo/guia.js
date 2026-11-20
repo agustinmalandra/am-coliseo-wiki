@@ -31,6 +31,23 @@ window.AMColiseoGuide = [
     ],
   },
   {
+    id: 'guardia-de-reserva', title: 'Guardia de Reserva', cards: [
+      ['Cómo se prepara', 'En 2v2, con equipos de 4 o 6, tocá Guardia y elegí qué aliado activo protegés y qué guardián vivo va a entrar desde la reserva. Elegí las acciones normales y confirmá. No funciona en 1v1 ni en Batalla Colosal.'],
+      ['Qué la activa', 'Si un rival ejecuta un ataque individual contra el aliado protegido antes de que este actúe, el guardián entra en su puesto, recibe el ataque y queda en campo. Se cancela solo la orden del aliado protegido. Si la Guardia no interviene, se conserva el uso y la orden normal puede ejecutarse.'],
+      ['Cuándo no interviene', 'Las áreas, incluidos los Ataques de Vínculo, no disparan Guardia. Anclado impide el relevo. Una reserva comprometida en otro cambio o relevo no puede cubrir a un aliado.'],
+      ['Uso y presentación', 'Un uso por equipo y combate, gastado al entrar a interceptar. La entrada muestra un escudo luminoso con destello y partículas, acompañado por el sonido de pasiva. No se activa al marcar la orden.'],
+    ],
+  },
+  {
+    id: 'ataques-de-vinculo', title: 'Ataques de Vínculo', cards: [
+      ['Cuándo aparece la técnica', 'En 2v2, si los dos integrantes de una dupla compatible están en campo, aparece su técnica compartida. No requiere un objeto ni ocupa un espacio del repertorio. Una rivalidad no desbloquea un Ataque de Vínculo.'],
+      ['Una técnica, dos órdenes', 'El ataque consume las dos órdenes del equipo en esa ronda. Se programa con prioridad 0 en la segunda posición de la dupla en el orden de resolución. Ataca en área, con hasta un impacto por rival activo.'],
+      ['Carga e interrupciones', 'Se puede ejecutar una vez por equipo y combate, aunque cambies de dupla. Si uno de los integrantes no puede actuar antes del ataque, no se gasta la carga, pero no se recuperan las dos órdenes de la ronda.'],
+      ['Cuando se lanza', 'Al ejecutarse se muestra el cartel con el nombre y suena el FX de Vínculo. Después se ven las animaciones y se oyen los sonidos de habilidad de ambos integrantes antes del impacto en área.'],
+      ['Guardia, Runas y Elevación', 'Guardia y Vínculo tienen cargas separadas, pero tu equipo no puede elegirlos en la misma ronda. Vínculo no gasta las cargas de Runa o Elevación ni dispara la Guardia del rival.'],
+    ],
+  },
+  {
     id: 'especiales', title: 'Runas, Elevación y Rupturas', cards: [
       ['Runas elementales', 'Dan un uso por combate para potenciar en un 40% los efectos compatibles de una técnica equipada de ese elemento. Según la técnica, puede ser daño, curación o escudo.'],
       ['Runas personales', 'Solo su personaje correspondiente puede equiparlas. Habilitan una quinta técnica exclusiva de un uso. En el combate, mantené presionado el botón de la técnica para leer qué hace sin gastar la carga.'],
